@@ -3,7 +3,7 @@ name: Update outbreak feed
 on:
   workflow_dispatch:
   schedule:
-    - cron: "45 15 * * *"
+    - cron: "15 */3 * * *"
 
 permissions:
   contents: write
