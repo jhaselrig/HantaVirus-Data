@@ -1,0 +1,17 @@
+{
+  "confirmedCases" : 7,
+  "dataAsOf" : "2026-05-11",
+  "deaths" : 3,
+  "diseaseName" : "Hantavirus",
+  "eventName" : "Andes hantavirus outbreak linked to MV Hondius",
+  "locationSummary" : "Multi-country event linked to cruise-ship travel",
+  "methodology" : "Counts are published from official public health sources only. Confirmed, probable, suspected, and non-case definitions follow the linked public health source.",
+  "probableCases" : 2,
+  "publicHealthNote" : "This app is informational and is not a diagnosis, treatment, quarantine, or travel guidance tool. Follow local public health authority instructions and seek medical care for symptoms or exposure concerns.",
+  "riskSummary" : "ECDC assesses the risk to the EU/EEA general population as very low. WHO assesses the global population risk as low.",
+  "sourceName" : "ECDC daily outbreak update",
+  "sourcePublishedAt" : "2026-05-11",
+  "sourceURL" : "https:\/\/www.ecdc.europa.eu\/en\/infectious-disease-topics\/hantavirus-infection\/surveillance-and-updates\/andes-hantavirus-outbreak",
+  "suspectedCases" : 0,
+  "totalCases" : 9
+}
