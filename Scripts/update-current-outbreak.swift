@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct OutbreakFeed: Encodable {
+struct OutbreakFeed: Codable {
     let confirmedCases: Int
     let dataAsOf: String
     let deaths: Int
@@ -18,6 +18,24 @@ struct OutbreakFeed: Encodable {
     let sourceURL: String
     let suspectedCases: Int
     let totalCases: Int
+}
+
+struct OutbreakHistoryPoint: Codable, Equatable {
+    let dataAsOf: String
+    let totalCases: Int
+    let confirmedCases: Int
+    let probableCases: Int
+    let suspectedCases: Int
+    let deaths: Int
+
+    init(feed: OutbreakFeed) {
+        dataAsOf = feed.dataAsOf
+        totalCases = feed.totalCases
+        confirmedCases = feed.confirmedCases
+        probableCases = feed.probableCases
+        suspectedCases = feed.suspectedCases
+        deaths = feed.deaths
+    }
 }
 
 enum UpdateError: Error, CustomStringConvertible {
@@ -81,17 +99,27 @@ let feed = OutbreakFeed(
     totalCases: totalCases
 )
 
-let encoder = JSONEncoder()
-encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
-var data = try encoder.encode(feed)
-data.append(0x0A)
-let outputURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-    .appendingPathComponent("docs/current-outbreak.json")
-try data.write(to: outputURL, options: .atomic)
+try writeJSON(feed, to: "docs/current-outbreak.json")
+
+let historyURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    .appendingPathComponent("docs/outbreak-history.json")
+let currentHistoryPoint = OutbreakHistoryPoint(feed: feed)
+var history = loadHistory(from: historyURL)
+
+if let index = history.firstIndex(where: { $0.dataAsOf == currentHistoryPoint.dataAsOf }) {
+    history[index] = currentHistoryPoint
+} else {
+    history.append(currentHistoryPoint)
+}
+
+history.sort { $0.dataAsOf < $1.dataAsOf }
+try writeJSON(history, to: "docs/outbreak-history.json")
 
 print("Updated docs/current-outbreak.json")
+print("Updated docs/outbreak-history.json")
 print("Data as of: \(sourceDate)")
 print("Total: \(totalCases), confirmed: \(confirmedCases), probable: \(probableCases), suspected: \(suspectedCases), deaths: \(deaths)")
+print("History points: \(history.count)")
 
 func normalize(_ html: String) -> String {
     var text = html.replacingOccurrences(
@@ -186,4 +214,25 @@ func intFromWordOrDigits(_ value: String) -> Int? {
         "twenty": 20
     ]
     return words[value.lowercased()]
+}
+
+func loadHistory(from url: URL) -> [OutbreakHistoryPoint] {
+    guard FileManager.default.fileExists(atPath: url.path),
+          let data = try? Data(contentsOf: url),
+          let history = try? JSONDecoder().decode([OutbreakHistoryPoint].self, from: data) else {
+        return []
+    }
+
+    return history
+}
+
+func writeJSON<T: Encodable>(_ value: T, to path: String) throws {
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+    var data = try encoder.encode(value)
+    data.append(0x0A)
+
+    let outputURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        .appendingPathComponent(path)
+    try data.write(to: outputURL, options: .atomic)
 }
