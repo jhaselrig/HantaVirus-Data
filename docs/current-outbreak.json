@@ -7,7 +7,7 @@
   "locationSummary" : "Multi-country event linked to cruise-ship travel",
   "methodology" : "Counts are published from official public health sources only. Confirmed, probable, suspected, and non-case definitions follow the linked public health source.",
   "probableCases" : 2,
-  "publicHealthNote" : "This app is informational and is not a diagnosis, treatment, quarantine, or travel guidance tool. Follow local public health authority instructions and seek medical care for symptoms or exposure concerns.",
+  "publicHealthNote" : "This independent app is informational only and is not affiliated with WHO, ECDC, CDC, or any public health agency. It is not a diagnosis, treatment, quarantine, or travel guidance tool. Follow local public health authority instructions and seek medical care for symptoms or exposure concerns.",
   "riskSummary" : "ECDC assesses the risk to the EU/EEA general population as very low. WHO assesses the global population risk as low.",
   "sourceName" : "ECDC daily outbreak update",
   "sourcePublishedAt" : "2026-05-11",
