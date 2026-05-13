@@ -30,6 +30,7 @@
     "confirmedCases" : 8,
     "dataAsOf" : "2026-05-13",
     "deaths" : 3,
+    "inconclusiveCases" : 0,
     "probableCases" : 2,
     "suspectedCases" : 0,
     "totalCases" : 10
