@@ -132,12 +132,8 @@ let historyURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
 let currentHistoryPoint = OutbreakHistoryPoint(feed: feed)
 var history = loadHistory(from: historyURL)
 
-if let index = history.firstIndex(where: { $0.dataAsOf == currentHistoryPoint.dataAsOf }) {
-    history[index] = currentHistoryPoint
-} else {
-    history.append(currentHistoryPoint)
-}
-
+history.removeAll { $0.dataAsOf == currentHistoryPoint.dataAsOf }
+history.append(currentHistoryPoint)
 history.sort { $0.dataAsOf < $1.dataAsOf }
 try writeJSON(history, to: "docs/outbreak-history.json")
 
