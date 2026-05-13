@@ -10,6 +10,7 @@ struct OutbreakFeed: Codable {
     let eventName: String
     let locationSummary: String
     let methodology: String
+    let inconclusiveCases: Int
     let probableCases: Int
     let publicHealthNote: String
     let riskSummary: String
@@ -26,7 +27,18 @@ struct OutbreakHistoryPoint: Codable, Equatable {
     let confirmedCases: Int
     let probableCases: Int
     let suspectedCases: Int
+    let inconclusiveCases: Int
     let deaths: Int
+
+    enum CodingKeys: String, CodingKey {
+        case dataAsOf
+        case totalCases
+        case confirmedCases
+        case probableCases
+        case suspectedCases
+        case inconclusiveCases
+        case deaths
+    }
 
     init(feed: OutbreakFeed) {
         dataAsOf = feed.dataAsOf
@@ -34,7 +46,19 @@ struct OutbreakHistoryPoint: Codable, Equatable {
         confirmedCases = feed.confirmedCases
         probableCases = feed.probableCases
         suspectedCases = feed.suspectedCases
+        inconclusiveCases = feed.inconclusiveCases
         deaths = feed.deaths
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        dataAsOf = try container.decode(String.self, forKey: .dataAsOf)
+        totalCases = try container.decode(Int.self, forKey: .totalCases)
+        confirmedCases = try container.decode(Int.self, forKey: .confirmedCases)
+        probableCases = try container.decode(Int.self, forKey: .probableCases)
+        suspectedCases = try container.decode(Int.self, forKey: .suspectedCases)
+        inconclusiveCases = try container.decodeIfPresent(Int.self, forKey: .inconclusiveCases) ?? 0
+        deaths = try container.decode(Int.self, forKey: .deaths)
     }
 }
 
@@ -78,8 +102,9 @@ let sourceDate = try parseSourceDate(from: pageText)
 let confirmedCases = try number(after: "Confirmed cases", in: pageText)
 let probableCases = try number(after: "Probable cases", in: pageText)
 let suspectedCases = try number(after: "Suspected cases", in: pageText)
+let inconclusiveCases = try number(after: "Inconclusive cases", in: pageText)
 let deaths = try number(after: "Number of deaths", in: pageText)
-let totalCases = try parseTotalCases(from: pageText) ?? confirmedCases + probableCases
+let totalCases = try parseTotalCases(from: pageText) ?? confirmedCases + probableCases + suspectedCases + inconclusiveCases
 
 let feed = OutbreakFeed(
     confirmedCases: confirmedCases,
@@ -88,7 +113,8 @@ let feed = OutbreakFeed(
     diseaseName: "Hantavirus",
     eventName: "Andes hantavirus outbreak linked to MV Hondius",
     locationSummary: "Multi-country event linked to cruise-ship travel",
-    methodology: "Counts are published from official public health sources only. Confirmed, probable, suspected, and non-case definitions follow the linked public health source.",
+    methodology: "Counts are published from official public health sources only. Confirmed, probable, suspected, inconclusive, and non-case definitions follow the linked public health source.",
+    inconclusiveCases: inconclusiveCases,
     probableCases: probableCases,
     publicHealthNote: "This independent app is informational only and is not affiliated with WHO, ECDC, CDC, or any public health agency. It is not a diagnosis, treatment, quarantine, or travel guidance tool. Follow local public health authority instructions and seek medical care for symptoms or exposure concerns.",
     riskSummary: "ECDC assesses the risk to the EU/EEA general population as very low. WHO assesses the global population risk as low.",
@@ -118,7 +144,7 @@ try writeJSON(history, to: "docs/outbreak-history.json")
 print("Updated docs/current-outbreak.json")
 print("Updated docs/outbreak-history.json")
 print("Data as of: \(sourceDate)")
-print("Total: \(totalCases), confirmed: \(confirmedCases), probable: \(probableCases), suspected: \(suspectedCases), deaths: \(deaths)")
+print("Total: \(totalCases), confirmed: \(confirmedCases), probable: \(probableCases), suspected: \(suspectedCases), inconclusive: \(inconclusiveCases), deaths: \(deaths)")
 print("History points: \(history.count)")
 
 func normalize(_ html: String) -> String {
@@ -158,15 +184,22 @@ func parseSourceDate(from text: String) throws -> String {
 }
 
 func parseTotalCases(from text: String) throws -> Int? {
-    let pattern = #"As of [0-9]{1,2} [A-Za-z]+,\s+([a-zA-Z0-9]+)\s+cases have been reported in total"#
-    guard let value = try? capture(pattern, in: text, label: "total cases") else {
-        return nil
+    let patterns = [
+        #"As of [0-9]{1,2} [A-Za-z]+,\s+([a-zA-Z0-9]+)\s+cases have been reported in total"#,
+        #"As of [0-9]{1,2} [A-Za-z]+,\s+a total of\s+([a-zA-Z0-9]+)\s+cases have been reported"#
+    ]
+
+    for pattern in patterns {
+        if let value = try? capture(pattern, in: text, label: "total cases") {
+            return intFromWordOrDigits(value)
+        }
     }
-    return intFromWordOrDigits(value)
+
+    return nil
 }
 
 func number(after label: String, in text: String) throws -> Int {
-    let pattern = NSRegularExpression.escapedPattern(for: label) + #"\*{0,3}\s+([0-9]+)"#
+    let pattern = NSRegularExpression.escapedPattern(for: label) + #"\*{0,4}\s+([0-9]+)"#
     let value = try capture(pattern, in: text, label: label)
     guard let number = Int(value) else {
         throw UpdateError.missingValue(label)
