@@ -1,6 +1,6 @@
 {
   "confirmedCases" : 8,
-  "dataAsOf" : "2026-05-15",
+  "dataAsOf" : "2026-05-16",
   "deaths" : 3,
   "diseaseName" : "Hantavirus",
   "eventName" : "Andes hantavirus outbreak linked to MV Hondius",
@@ -11,7 +11,7 @@
   "publicHealthNote" : "This independent app is informational only and is not affiliated with WHO, ECDC, CDC, or any public health agency. It is not a diagnosis, treatment, quarantine, or travel guidance tool. Follow local public health authority instructions and seek medical care for symptoms or exposure concerns.",
   "riskSummary" : "ECDC assesses the risk to the EU/EEA general population as very low. WHO assesses the global population risk as low.",
   "sourceName" : "ECDC daily outbreak update",
-  "sourcePublishedAt" : "2026-05-15",
+  "sourcePublishedAt" : "2026-05-16",
   "sourceURL" : "https://www.ecdc.europa.eu/en/infectious-disease-topics/hantavirus-infection/surveillance-and-updates/andes-hantavirus-outbreak",
   "suspectedCases" : 0,
   "totalCases" : 11
