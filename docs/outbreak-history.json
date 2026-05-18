@@ -61,5 +61,14 @@
     "probableCases" : 2,
     "suspectedCases" : 0,
     "totalCases" : 12
+  },
+  {
+    "confirmedCases" : 9,
+    "dataAsOf" : "2026-05-18",
+    "deaths" : 3,
+    "inconclusiveCases" : 1,
+    "probableCases" : 2,
+    "suspectedCases" : 0,
+    "totalCases" : 12
   }
 ]
